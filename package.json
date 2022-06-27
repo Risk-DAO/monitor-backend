@@ -1,0 +1,24 @@
+{
+  "name": "monitor-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "web3": "^1.7.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Risk-DAO/monitor-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Risk-DAO/monitor-backend/issues"
+  },
+  "homepage": "https://github.com/Risk-DAO/monitor-backend#readme"
+}
