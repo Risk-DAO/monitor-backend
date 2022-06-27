@@ -64,6 +64,7 @@ class Compound {
       this.users = {}
       this.prices = {}
       this.markets = []
+      this.decimals = {}
     }
 
     getData() {
@@ -71,13 +72,14 @@ class Compound {
         {
             "markets" : JSON.stringify(this.markets),
             "prices" : JSON.stringify(this.prices),
-            "users" : JSON.stringify(this.users),
             "lastUpdateTime" : this.lastUpdateTime,
             "liquidationIncentive" : this.liquidationIncentive,
             "collateralFactors" : JSON.stringify(this.collateralFactors),
             "names" : JSON.stringify(this.names),
             "borrowCaps" : JSON.stringify(this.borrowCaps),
-            "collateralCaps" : JSON.stringify(this.collateralCaps)            
+            "collateralCaps" : JSON.stringify(this.collateralCaps),
+            "decimals" : JSON.stringify(this.decimals),            
+            "users" : JSON.stringify(this.users)
         }
 
         return JSON.stringify(result)
@@ -192,12 +194,14 @@ class Compound {
 
             if(this.cETHAddresses.includes(market)) {
                 balance = await this.web3.eth.getBalance(market)
+                this.decimals[market] = 18
             }
             else {
                 console.log("getting underlying")
                 const underlying = await ctoken.methods.underlying().call()
                 const token = new this.web3.eth.Contract(Addresses.cTokenAbi, underlying)
                 balance = await token.methods.balanceOf(market).call()
+                this.decimals[market] = Number(await token.methods.decimals().call())
             }            
 
             console.log("getting market borrows")            
