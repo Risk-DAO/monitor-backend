@@ -65,6 +65,8 @@ class Compound {
       this.prices = {}
       this.markets = []
       this.decimals = {}
+      this.underlying = {}
+      this.closeFactor = 0.0
     }
 
     getData() {
@@ -78,7 +80,9 @@ class Compound {
             "names" : JSON.stringify(this.names),
             "borrowCaps" : JSON.stringify(this.borrowCaps),
             "collateralCaps" : JSON.stringify(this.collateralCaps),
-            "decimals" : JSON.stringify(this.decimals),            
+            "decimals" : JSON.stringify(this.decimals),
+            "underlying" : JSON.stringify(this.underlying),
+            "closeFactor" : JSON.stringify(this.closeFactor),            
             "users" : JSON.stringify(this.users)
         }
 
@@ -173,6 +177,8 @@ class Compound {
             const marketData = await this.comptroller.methods.markets(market).call()
             const collateralFactor = marketData.collateralFactorMantissa
 
+            this.closeFactor = fromWei(await this.comptroller.methods.closeFactorMantissa().call())
+
             this.collateralFactors[market] = fromWei(collateralFactor)
             console.log("getting market name start")
             this.names[market] = await ctoken.methods.name().call()
@@ -195,6 +201,7 @@ class Compound {
             if(this.cETHAddresses.includes(market)) {
                 balance = await this.web3.eth.getBalance(market)
                 this.decimals[market] = 18
+                this.underlying[market] = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
             }
             else {
                 console.log("getting underlying")
@@ -202,6 +209,7 @@ class Compound {
                 const token = new this.web3.eth.Contract(Addresses.cTokenAbi, underlying)
                 balance = await token.methods.balanceOf(market).call()
                 this.decimals[market] = Number(await token.methods.decimals().call())
+                this.underlying[market] = underlying
             }            
 
             console.log("getting market borrows")            
