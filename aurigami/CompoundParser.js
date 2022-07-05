@@ -88,10 +88,9 @@ class Compound {
         }   
         try {
             fs.writeFileSync("data.json", JSON.stringify(result));
-            // file written successfully
-          } catch (err) {
+        } catch (err) {
             console.error(err);
-          } 
+        } 
 
         return JSON.stringify(result)
     }

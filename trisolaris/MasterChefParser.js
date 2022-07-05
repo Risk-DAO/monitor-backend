@@ -71,10 +71,9 @@ class MasterChef {
         }
         try {
             fs.writeFileSync("data_" + this.name + ".json", JSON.stringify(result));
-            // file written successfully
-          } catch (err) {
+        } catch (err) {
             console.error(err);
-          } 
+        } 
         return JSON.stringify(result)
     }
 
