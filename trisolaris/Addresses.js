@@ -14,10 +14,10 @@ const triMasterChefV2Address = "0x3838956710bcc9D122Dd23863a0549ca8D5675D6"
 
 
 const triMasterChefV1Info = { "NEAR" : { "address" : triMasterChefV1Address,
-    "deployBlock" : 52661885, "blockStepInInit" : 500000 * 2, "multicallSize" : 200, "version" : 1}}
+    "deployBlock" : 52661885, "blockStepInInit" : 50000 * 1, "multicallSize" : 200, "version" : 1}}
 
 const triMasterChefV2Info = { "NEAR" : { "address" : triMasterChefV2Address,
-    "deployBlock" : 54579980, "blockStepInInit" : 500000 * 2, "multicallSize" : 200, "version" : 2}}
+    "deployBlock" : 54579980, "blockStepInInit" : 50000 * 1, "multicallSize" : 200, "version" : 2}}
 
 const multicallAddress = { "ETH" : "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696", "BSC" : "0xcb6E2F66DF0493b4dD23ac7727D1677D1208b697",
     "AVAX" : "0xcb6E2F66DF0493b4dD23ac7727D1677D1208b697",

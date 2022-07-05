@@ -100,7 +100,7 @@ const aurigamiAddress = {
         "comptroller": "0x817af6cfAF35BdC1A634d6cC94eE9e4c68369Aeb",
         "cETH": "0xca9511B610bA5fc7E311FDeF9cE16050eE4449E9",
         "deployBlock": 60501454,
-        "blockStepInInit": 1000000,
+        "blockStepInInit": 100000,
         "multicallSize": 200
     }
 }
