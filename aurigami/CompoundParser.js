@@ -2,6 +2,7 @@ const Web3 = require('web3')
 const { toBN, toWei, fromWei } = Web3.utils
 const axios = require('axios')
 const Addresses = require("./Addresses.js")
+const fs = require('fs');
 
 /**
  * a small retry wrapper with an incrameting 5s sleep delay
@@ -84,7 +85,13 @@ class Compound {
             "underlying" : JSON.stringify(this.underlying),
             "closeFactor" : JSON.stringify(this.closeFactor),            
             "users" : JSON.stringify(this.users)
-        }
+        }   
+        try {
+            fs.writeFileSync("data.json", JSON.stringify(result));
+            // file written successfully
+          } catch (err) {
+            console.error(err);
+          } 
 
         return JSON.stringify(result)
     }
