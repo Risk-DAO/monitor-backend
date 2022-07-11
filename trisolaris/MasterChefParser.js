@@ -280,7 +280,8 @@ async function test() {
         {"name" : "WETH-NEAR", "pid" : 0, "version" : 1},
         {"name" : "WBTC-NEAR", "pid" : 4, "version" : 1},                
         {"name" : "USDC-NEAR", "pid" : 25, "version" : 2},
-        {"name" : "USDT-NEAR", "pid" : 26, "version" : 2}
+        {"name" : "USDT-NEAR", "pid" : 26, "version" : 2},
+        {"name" : "stNEAR-NEAR", "pid" : 12, "version" : 2}        
     ]
 
     const web3 = new Web3("https://mainnet.aurora.dev")
