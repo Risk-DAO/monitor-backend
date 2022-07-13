@@ -32,9 +32,8 @@ class Aave {
     constructor(aaveInfo, network, web3, heavyUpdateInterval = 24) {
       this.web3 = web3
       this.network = network
-      this.lendingPool = new web3.eth.Contract(Addresses.lendingPoolAbi, aaveInfo[network].lendingPoolAddress)
+      this.lendingPoolAddressesProvider = new web3.eth.Contract(Addresses.lendingPoolAddressesProviderAbi, aaveInfo[network].lendingPoolAddressesProviderAddress)
       this.aaveUserInfo = new web3.eth.Contract(Addresses.aaveUserInfoAbi, Addresses.aaveUserInfoAddress[network])
-      this.oracle = new web3.eth.Contract(Addresses.aaveOracleAbi, aaveInfo[network].oracleAddress)
 
       this.multicall = new web3.eth.Contract(Addresses.multicallAbi, Addresses.multicallAddress[network])
       this.deployBlock = aaveInfo[network].deployBlock
@@ -53,13 +52,18 @@ class Aave {
 
 
       this.markets = []
-      this.names = []
-      this.decimals = []
+      this.names = {}
+      this.decimals = {}
       this.lastUpdateTime = 0
 
       this.liquidationIncentive = {}
       this.collateralFactors = {}
       this.prices = {}
+      this.underlying = {}
+      this.closeFactor = {}
+      this.borrowCaps = {}
+      this.collateralCaps = {}
+      this.collateralFactors = {}
     }
 
     getData() {
@@ -71,11 +75,11 @@ class Aave {
             "liquidationIncentive" : JSON.stringify(this.liquidationIncentive),
             "collateralFactors" : JSON.stringify(this.collateralFactors),
             "names" : JSON.stringify(this.names),
-            //"borrowCaps" : JSON.stringify(this.borrowCaps),
-            //"collateralCaps" : JSON.stringify(this.collateralCaps),
+            "borrowCaps" : JSON.stringify(this.borrowCaps),
+            "collateralCaps" : JSON.stringify(this.collateralCaps),
             "decimals" : JSON.stringify(this.decimals),
-            //"underlying" : JSON.stringify(this.underlying),
-            //"closeFactor" : JSON.stringify(this.closeFactor),            
+            "underlying" : JSON.stringify(this.underlying),
+            "closeFactor" : JSON.stringify(this.closeFactor),            
             "users" : JSON.stringify(this.users)
         }   
         try {
@@ -105,9 +109,13 @@ class Aave {
     }
 
     async initPrices() {
+        const lendingPoolAddress = await this.lendingPoolAddressesProvider.methods.getLendingPool().call()
+        this.lendingPool = new this.web3.eth.Contract(Addresses.lendingPoolAbi, lendingPoolAddress)
+
+        const oracleAddress = await this.lendingPoolAddressesProvider.methods.getPriceOracle().call()
+        this.oracle = new this.web3.eth.Contract(Addresses.aaveOracleAbi, oracleAddress)
+
         this.markets = await this.aaveUserInfo.methods.getReservesList(this.lendingPool.options.address).call()
-        const names = []
-        const decimals = []
 
         for(const market of this.markets) {
             const cfg = await this.lendingPool.methods.getConfiguration(market).call()
@@ -119,21 +127,23 @@ class Aave {
 
             const token = new this.web3.eth.Contract(Addresses.erc20Abi, market)
             const lastName = await token.methods.symbol().call()
-            names.push(lastName)
-            decimals.push(await token.methods.decimals().call())
+            this.names[market] = lastName
+            const tokenDecimals = await token.methods.decimals().call()
+            this.decimals[market] = tokenDecimals
 
             console.log("calling market price", {market}, {lastName})
-            let price
-            if(lastName === "USDT.e" || lastName === "USDC.e") price = toWei("1")
-            else price = await this.oracle.methods.getAssetPrice(market).call()
-            this.prices[market] = price
+            const price = await this.oracle.methods.getAssetPrice(market).call()
+            this.prices[market] = toBN(price).mul(toBN(10).pow(toBN(36 - Number(tokenDecimals))))
             console.log(price.toString())
             console.log("calling market price end")
 
-        }
-        
-        this.names = names
-        this.decimals = decimals
+
+            this.underlying[market] = market 
+            this.closeFactor[market] = 0.5
+            this.borrowCaps[market] = 0
+            this.collateralCaps[market] = 0
+            this.collateralFactors[market] = 0            
+        }        
     }
 
     async heavyUpdate() {
@@ -299,7 +309,7 @@ class Aave {
 
             const userObj = []
             for(let i = 0 ; i < result.assets.length ; i++) {
-                userObj.push({"asset" : result.assets[i], "collateral" : result.collaterals[i], "debt" : result.debts[i]})
+                userObj.push({"asset" : result.assets[i], "collateral" : toBN(result.collaterals[i]), "debt" : toBN(result.debts[i])})
             }
 
             this.users[user] = userObj            
