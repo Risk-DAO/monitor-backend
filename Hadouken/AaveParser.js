@@ -63,7 +63,6 @@ class Aave {
       this.closeFactor = {}
       this.borrowCaps = {}
       this.collateralCaps = {}
-      this.collateralFactors = {}
     }
 
     getData() {
@@ -119,7 +118,7 @@ class Aave {
 
         for(const market of this.markets) {
             const cfg = await this.lendingPool.methods.getConfiguration(market).call()
-            const ltv = this.getBits(cfg[0], 0, 15) / 1e4
+            const ltv = Number(this.getBits(cfg[0], 0, 15)) / 1e4
             const liquidationBonus = this.getBits(cfg[0], 32, 47) / 1e4
 
             this.liquidationIncentive[market] = liquidationBonus
@@ -133,7 +132,7 @@ class Aave {
 
             console.log("calling market price", {market}, {lastName})
             const price = await this.oracle.methods.getAssetPrice(market).call()
-            this.prices[market] = toBN(price).mul(toBN(10).pow(toBN(36 - Number(tokenDecimals))))
+            this.prices[market] = toBN(price).mul(toBN(10).pow(toBN(18 - Number(tokenDecimals))))
             console.log(price.toString())
             console.log("calling market price end")
 
@@ -142,7 +141,6 @@ class Aave {
             this.closeFactor[market] = 0.5
             this.borrowCaps[market] = 0
             this.collateralCaps[market] = 0
-            this.collateralFactors[market] = 0            
         }        
     }
 
@@ -308,12 +306,21 @@ class Aave {
             //console.log({result})
 
             const userObj = []
+            const collaterals = {}
+            const debts = {}
             for(let i = 0 ; i < result.assets.length ; i++) {
-                userObj.push({"asset" : result.assets[i], "collateral" : toBN(result.collaterals[i]), "debt" : toBN(result.debts[i])})
+                collaterals[result.assets[i]] = toBN(result.collaterals[i])
+                debts[result.assets[i]] = toBN(result.debts[i])
+                //userObj.push({"asset" : result.assets[i], "collateral" : toBN(result.collaterals[i]), "debt" : toBN(result.debts[i])})
             }
 
-            this.users[user] = userObj            
+            this.users[user] = {"asset": result.assets, "borrowBalances" : debts, "collateralBalances": collaterals,
+                                "succ" : true}
+
+            //this.users[user] = userObj            
         }
+
+
 
         // TODO - revive multicall
         return
