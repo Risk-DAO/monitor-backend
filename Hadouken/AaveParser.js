@@ -120,6 +120,8 @@ class Aave {
             const cfg = await this.lendingPool.methods.getConfiguration(market).call()
             const ltv = Number(this.getBits(cfg[0], 0, 15)) / 1e4
             const liquidationBonus = this.getBits(cfg[0], 32, 47) / 1e4
+            const borrowCap = this.getBits(cfg[0], 80, 115)
+            const collateralCap = this.getBits(cfg[0], 116, 151)
 
             this.liquidationIncentive[market] = liquidationBonus
             this.collateralFactors[market] = ltv
@@ -139,8 +141,8 @@ class Aave {
 
             this.underlying[market] = market 
             this.closeFactor[market] = 0.5
-            this.borrowCaps[market] = 0
-            this.collateralCaps[market] = 0
+            this.borrowCaps[market] = borrowCap
+            this.collateralCaps[market] = collateralCap
         }        
     }
 
