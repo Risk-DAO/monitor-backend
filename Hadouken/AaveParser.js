@@ -141,8 +141,11 @@ class Aave {
 
             this.underlying[market] = market 
             this.closeFactor[market] = 0.5
-            this.borrowCaps[market] = borrowCap
-            this.collateralCaps[market] = collateralCap
+            this.borrowCaps[market] = toBN(borrowCap).mul(toBN(10).pow(toBN(Number(tokenDecimals))))
+            this.collateralCaps[market] = toBN(collateralCap).mul(toBN(10).pow(toBN(Number(tokenDecimals))))
+
+            console.log(lastName, borrowCap.toString(), collateralCap.toString(), cfg[0].toString())
+
         }        
     }
 
